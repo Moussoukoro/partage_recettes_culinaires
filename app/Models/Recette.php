@@ -29,25 +29,38 @@ class Recette extends Model
         'tempsPreparation' => 'integer'
     ];
 
-    /**
-     * Obtenir le visiteur qui a créé la recette
-     */
     public function visiteur(): BelongsTo
     {
         return $this->belongsTo(Visiteur::class, 'visiteur_id');
     }
+
     public function categories()
     {
         return $this->belongsToMany(Categorie::class);
     }
-      /**
-     * Obtenir l'utilisateur qui a créé la recette via le visiteur
-     */
+
+    public function aimes()
+    {
+        return $this->belongsToMany(Visiteur::class, 'aimes')
+        ->withPivot('created_at') 
+                    ->withTimestamps();
+    }
+
+    public function favories()
+    {
+        return $this->belongsToMany(Visiteur::class, 'favories')
+        ->withPivot('created_at') 
+                    ->withTimestamps();
+    }
+
+    public function commentaires()
+    {
+        return $this->hasMany(Commentaire::class);
+    }
+
     public function user(): BelongsTo
     {
-        return $this->visiteur->user(); // Utiliser la relation définie dans Visiteur
+        return $this->visiteur->user();
     }
-    
-
 
 }

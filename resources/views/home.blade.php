@@ -38,7 +38,7 @@
         <div class="recipes_section mt-5">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h3>Mes Recettes</h3>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+            <button type="button" class="btn btn-primary w-auto px-5" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
               Ajouter recette
             </button>
           </div>
@@ -105,12 +105,17 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-                    <label for="categories">Catégories :</label>
-            <select name="categories[]" id="categories" multiple>
-                @foreach ($categories as $categorie)
-                    <option value="{{ $categorie->id }}">{{ $categorie->nom }}</option>
-                @endforeach
-            </select>
+            <div class="mb-3">
+    <label for="categories">Catégories</label>
+          <select name="categories[]" id="categories" class="form-control select2" multiple>
+              @foreach($categories as $categorie)
+                  <option value="{{ $categorie->id }}" 
+                      {{ isset($recette) && $recette->categories->contains($categorie->id) ? 'selected' : '' }}>
+                      {{ $categorie->nom }}
+                  </option>
+              @endforeach
+          </select>
+      </div>
             
             <div class="mb-3">
                 <label for="ingredient" class="form-label">Ingrédients</label>

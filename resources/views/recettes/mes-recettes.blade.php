@@ -4,7 +4,7 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Mes Recettes</h1>
-        <a href="{{ route('recettes.create') }}" class="btn btn-primary">Ajouter une recette</a>
+        <a href="{{ route('recettes.create') }}"  class="btn btn-primary w-auto px-5">Ajouter une recette</a>
     </div>
 
     <div class="row">

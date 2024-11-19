@@ -265,11 +265,11 @@
             Avec déjà plus de 10 000 membres actifs et 5 000 recettes partagées, notre communauté grandit chaque jour. Rejoignez-nous pour faire partie de cette belle aventure culinaire !
           </p>
           <div class="d-flex justify-content-center mt-4">
-            <a href="rejoindre-communaute" class="btn btn-primary mr-3">
+            <a href="rejoindre-communaute" class="btn btn-primary w-auto px-5">
               Rejoindre la communauté
               <i class="fa fa-arrow-right ml-2" aria-hidden="true"></i>
             </a>
-            <a href="recettes-populaires" class="btn btn-outline-primary">
+            <a href="recettes-populaires" class="btn btn-primary w-auto px-5">
               Découvrir les recettes
               <i class="fa fa-utensils ml-2" aria-hidden="true"></i>
             </a>
@@ -330,9 +330,11 @@
             <p>
               Découvrez notre recette coup de cœur de la semaine : un délicieux gâteau au chocolat sans gluten, partagé par Marie D. Cette recette a déjà conquis plus de 100 membres de notre communauté !
             </p>
-            <a href="recette-semaine">
+         
+            <a href="recette-semaine" class="btn btn-primary w-auto px-5">
               Voir la recette <i class="fa fa-arrow-right" aria-hidden="true"></i>
             </a>
+
           </div>
         </div>
       </div>
@@ -346,7 +348,7 @@
             <p>
               Participez à notre concours mensuel sur le thème "Desserts d'été". Partagez vos meilleures recettes et tentez de gagner un robot pâtissier professionnel !
             </p>
-            <a href="concours-cuisine">
+            <a href="concours-cuisine" class="btn btn-primary w-auto px-5">
               Participer <i class="fa fa-arrow-right" aria-hidden="true"></i>
             </a>
           </div>

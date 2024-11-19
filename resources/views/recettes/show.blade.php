@@ -20,6 +20,17 @@
                         </p>
                     </div>
 
+                    @if($recette->categories->count() > 0)
+                        <div class="mb-4">
+                            <h4>Catégories</h4>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($recette->categories as $categorie)
+                                    <span class="badge bg-primary">{{ $categorie->nom }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     @if($recette->description)
                         <div class="mb-4">
                             <h4>Description</h4>

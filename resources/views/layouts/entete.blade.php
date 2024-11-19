@@ -1,62 +1,128 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <!-- Basic -->
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  
   <title>CuisineFlow</title>
 
-
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-
-  <!-- fonts style -->
-  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet">
-
-  <!-- font awesome style -->
-  <link href="css/font-awesome.min.css" rel="stylesheet" />
-  <!-- nice select -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha256-mLBIhmBvigTFWPSCtvdu6a76T+3Xyt+K571hupeFLg4=" crossorigin="anonymous" />
-  <!-- slidck slider -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css" integrity="sha256-UK1EiopXIL+KVhfbFa8xrmAWPeBjMVdvYMYkTAEv/HI=" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css.map" integrity="undefined" crossorigin="anonymous" />
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-  <!-- Custom styles for this template -->
-  <link href="css/style.css" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="css/responsive.css" rel="stylesheet" />
-
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet">
+  
+  <!-- Nice Select -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css">
+  
+  <!-- Slick Slider -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
+  
+  <!-- Custom styles -->
+  <link href="{{ asset('css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('css/responsive.css') }}" rel="stylesheet" />
+  
+  <!-- Stack styles -->
+  @stack('styles')
 </head>
 
 <body>
+  @yield('content')
 
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
+  <!-- Bootstrap Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  
+  <!-- Slick Slider -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+  
+  <!-- Nice Select -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+  
+  <!-- Custom Scripts -->
+  <script src="{{ asset('js/custom.js') }}"></script>
 
-@yield('content')
-  <!-- jQery -->
-  <script src="js/jquery-3.4.1.min.js"></script>
-  <!-- bootstrap js -->
-  <script src="js/bootstrap.js"></script>
-  <!-- slick  slider -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.js"></script>
-  <!-- nice select -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js" integrity="sha256-Zr3vByTlMGQhvMfgkQ5BtWRSKBGa2QlspKYJnkjZTmo=" crossorigin="anonymous"></script>
-  <!-- custom js -->
-  <script src="js/custom.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+  <!-- Setup Axios CSRF -->
+  <script>
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').content;
+    
+    // Définition des fonctions globales
+    window.aimer = function(recetteId) {
+      axios.post(`/recettes/${recetteId}/aimer`)
+        .then(response => {
+          const button = document.querySelector(`button[onclick="aimer(${recetteId})"]`);
+          const icon = button.querySelector('i');
+          const countSpan = document.getElementById(`likes-count-${recetteId}`);
+          
+          if (response.data.liked) {
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-primary');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+          } else {
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-outline-primary');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+          }
+          
+          countSpan.textContent = response.data.count;
+        })
+        .catch(error => {
+          if (error.response?.status === 401) {
+            window.location.href = '{{ route("login") }}';
+          } else {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+          }
+        });
+    };
 
+    window.ajouterFavori = function(recetteId) {
+      axios.post(`/recettes/${recetteId}/favori`)
+        .then(response => {
+          const button = document.querySelector(`button[onclick="ajouterFavori(${recetteId})"]`);
+          const icon = button.querySelector('i');
+          const countSpan = document.getElementById(`favoris-count-${recetteId}`);
+          
+          if (response.data.favorited) {
+            button.classList.remove('btn-outline-warning');
+            button.classList.add('btn-warning');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+          } else {
+            button.classList.remove('btn-warning');
+            button.classList.add('btn-outline-warning');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+          }
+          
+          countSpan.textContent = response.data.count;
+        })
+        .catch(error => {
+          if (error.response?.status === 401) {
+            window.location.href = '{{ route("login") }}';
+          } else {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+          }
+        });
+    };
+  </script>
 
+  <!-- Stack scripts -->
+  @stack('scripts')
 </body>
-
 </html>

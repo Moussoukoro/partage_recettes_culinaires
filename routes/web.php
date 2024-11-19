@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RecetteController;
+use App\Http\Controllers\CommentaireController;
 
 
 /*
@@ -33,6 +34,14 @@ Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(
 Route::middleware(['auth'])->group(function () {
     Route::resource('recettes', RecetteController::class);
     Route::get('/mes-recettes', [RecetteController::class, 'mesRecettes'])->name('mes-recettes');
+    Route::post('/commentaires', [CommentaireController::class, 'store'])->name('commentaires.store');
+   
+});
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::post('/recettes/{recette}/aimer', [RecetteController::class, 'aimer'])
+        ->name('recettes.aimer');
+    Route::post('/recettes/{recette}/favori', [RecetteController::class, 'favori'])
+        ->name('recettes.favori');
 });
 
 

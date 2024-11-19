@@ -11,7 +11,7 @@
           </div>
           <div class="detail-box">
             <h4>Déjeuner</h4>
-            <a href="recettes-dejeuner">
+            <a href="recettes-dejeuner" class="btn btn-primary w-auto px-5">
               Découvrir
               <i class="fa fa-arrow-right" aria-hidden="true"></i>
             </a>
@@ -25,7 +25,7 @@
           </div>
           <div class="detail-box">
             <h4>Plats</h4>
-            <a href="recettes-plats">
+            <a href="recettes-plats" class="btn btn-primary w-auto px-5">
               Découvrir
               <i class="fa fa-arrow-right" aria-hidden="true"></i>
             </a>
@@ -39,7 +39,7 @@
           </div>
           <div class="detail-box">
             <h4>Desserts</h4>
-            <a href="recettes-desserts">
+            <a href="recettes-desserts" class="btn btn-primary w-auto px-5">
               Découvrir
               <i class="fa fa-arrow-right" aria-hidden="true" ></i>
             </a>

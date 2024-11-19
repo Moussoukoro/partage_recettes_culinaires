@@ -26,25 +26,25 @@ class CategorieResource extends Resource
                     ->label('Nom')
                     ->required()
                     ->maxLength(255),
-                FileUpload::make('photo')
-                    ->label('Photo')
-                    ->directory('photos') // Répertoire de stockage
-                    ->image() // Limite aux fichiers image
-                    ->required(),
+                Forms\Components\ViewField::make('photo')
+                    ->view('filament.forms.components.categorie-image-view')
             ]);
     }
 
     public static function table(Tables\Table $table): Tables\Table
+
     {
+        
         return $table
             ->columns([
                 TextColumn::make('nom')
                     ->label('Nom')
                     ->sortable()
                     ->searchable(),
-                ImageColumn::make('photo')
+                  // Utiliser une colonne personnalisée ViewColumn pour afficher l'image
+                  Tables\Columns\ViewColumn::make('photo')
                     ->label('Photo')
-                    ->disk('public'), // Spécifie le disque utilisé (par défaut "public")
+                    ->view('filament.forms.components.categorie-image-view'), 
                 TextColumn::make('created_at')
                     ->label('Créé le')
                     ->dateTime(),
@@ -80,7 +80,9 @@ class CategorieResource extends Resource
             'edit' => Pages\EditCategorie::route('/{record}/edit'),
         ];
     }
-}
+  
+    }
+
 
 
 

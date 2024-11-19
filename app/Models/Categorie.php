@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Categorie extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $fillable = [
+        'nom',
+        'photo'
+    ];
     
     public function recettes()
     {
