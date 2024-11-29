@@ -18,6 +18,7 @@ class CommentaireController extends Controller
         $validatedData = $request->validate([
             'recette_id' => 'required|exists:recettes,id',
             'contenu' => 'required|string|min:2',
+            'parent_id' => 'nullable|exists:commentaires,id'
         ]);
 
         // Vérifier si l'utilisateur est connecté et a un visiteur associé
@@ -31,6 +32,7 @@ class CommentaireController extends Controller
                 'contenu' => $validatedData['contenu'],
                 'recette_id' => $validatedData['recette_id'],
                 'visiteur_id' => Auth::user()->visiteur->id,
+                'parent_id' => $request->input('parent_id') // Add parent_id if provided
             ]);
 
             return back()->with('success', 'Votre commentaire a été ajouté avec succès !');

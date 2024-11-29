@@ -10,7 +10,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\ViewColumn;
 
 class CategorieResource extends Resource
 {
@@ -26,25 +26,28 @@ class CategorieResource extends Resource
                     ->label('Nom')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\ViewField::make('photo')
+                FileUpload::make('photo')
+                    ->label('Photo')
+                    ->image()
+                    ->directory('categories')
+                    ->preserveFilenames(),
+                Forms\Components\ViewField::make('photo_preview')
                     ->view('filament.forms.components.categorie-image-view')
+                    ->visible(fn ($record) => $record !== null)
             ]);
     }
 
     public static function table(Tables\Table $table): Tables\Table
-
     {
-        
         return $table
             ->columns([
                 TextColumn::make('nom')
                     ->label('Nom')
                     ->sortable()
                     ->searchable(),
-                  // Utiliser une colonne personnalisée ViewColumn pour afficher l'image
-                  Tables\Columns\ViewColumn::make('photo')
+                ViewColumn::make('photo')
                     ->label('Photo')
-                    ->view('filament.forms.components.categorie-image-view'), 
+                    ->view('filament.forms.components.categorie-image-view'),
                 TextColumn::make('created_at')
                     ->label('Créé le')
                     ->dateTime(),
@@ -80,10 +83,4 @@ class CategorieResource extends Resource
             'edit' => Pages\EditCategorie::route('/{record}/edit'),
         ];
     }
-  
-    }
-
-
-
-
-
+}

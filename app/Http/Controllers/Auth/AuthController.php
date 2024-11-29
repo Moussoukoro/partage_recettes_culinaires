@@ -53,6 +53,7 @@ class AuthController extends Controller
               'photo' => $photoPath,
               'phone' => $request->phone,
               'password' => Hash::make($request->password),  // Hash du mot de passe
+              'account_status' => 'active', // Add this line
           ]);
       
           // Ajouter le nom d'utilisateur dans la table 'visiteur'
@@ -78,24 +79,27 @@ class AuthController extends Controller
     // Fonction de connexion
     public function login(Request $request)
     {
-        
-     
         // Validation des informations de connexion
         $request->validate([
             'mail' => 'required|string|email|max:255',
             'password' => 'required|string|min:4',
         ]);
-        // Affiche les données envoyées à Auth::attempt()
-
-
-         
-      // Tentative de connexion avec les bons champs
-      if (Auth::attempt([
-        'mail' => $request->input('mail'),
-        'password' => $request->input('password'),
-    ], $request->has('remember'))) {
-        return redirect()->route('home');  // Redirection après connexion réussie
-    }
+    
+        // Rechercher l'utilisateur par email
+        $user = User::where('mail', $request->input('mail'))->first();
+    
+        // Vérifier si l'utilisateur existe et si le mot de passe est correct
+        if ($user && Hash::check($request->input('password'), $user->password)) {
+            // Vérifier le statut du compte
+            if ($user->account_status !== 'active') {
+                return back()->withErrors(['mail' => 'Votre compte est inactif. Veuillez contacter l\'administrateur.']);
+            }
+    
+            // Connexion réussie
+            Auth::login($user, $request->has('remember'));
+            return redirect()->route('home');
+        }
+    
         // Retourner une erreur si la connexion échoue
         return back()->withErrors(['mail' => 'Les informations d\'identification sont incorrectes.']);
     }
@@ -106,5 +110,112 @@ class AuthController extends Controller
         Auth::logout();
         return redirect()->route('home');
     }
+
+
+    // Affiche le formulaire de modification du profil
+
+public function editProfileForm() {
+    $user = Auth::user();
+    // Gardez la date au format Y-m-d pour l'input type="date"
+    if ($user->dateNaiss) {
+        $user->dateNaiss = \Carbon\Carbon::parse($user->dateNaiss)->format('Y-m-d');
+    }
+    return view('auth.edit-profile', ['user' => $user]);
+}
+
+// Mise à jour du profil
+public function updateProfile(Request $request)
+{
+    // Validation des champs
+    $request->validate([
+        'nom' => 'required|string|max:255',
+        'prenom' => 'required|string|max:255',
+        'adresse' => 'required|string|max:255',
+       'dateNaiss' => 'required|date_format:Y-m-d',
+        'lieuNaiss' => 'required|string|max:255',
+        'mail' => 'required|string|email|max:255|unique:users,mail,' . Auth::id(),
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'phone' => 'required|string|max:20',
+        'nomUtilisateur' => 'required|string|max:255|unique:visiteurs,nomUtilisateur,' . Auth::user()->visiteur->id,
+    ]);
+
+    // Récupérer l'utilisateur connecté
+    $user = Auth::user();
+
+    // Gestion de la photo
+    if ($request->hasFile('photo')) {
+        // Supprimer l'ancienne photo si elle existe
+        if ($user->photo) {
+            \Storage::disk('public')->delete($user->photo);
+        }
+        // Sauvegarder la nouvelle photo
+        $photoPath = $request->file('photo')->store('photos', 'public');
+    }
+
+    // Mise à jour des informations de l'utilisateur
+    $user->update([
+        'nom' => $request->nom,
+        'prenom' => $request->prenom,
+        'adresse' => $request->adresse,
+        'dateNaiss' => $request->dateNaiss,
+        'lieuNaiss' => $request->lieuNaiss,
+        'mail' => $request->mail,
+        'phone' => $request->phone,
+        'photo' => $request->hasFile('photo') ? $photoPath : $user->photo,
+    ]);
+
+    // Mise à jour du nom d'utilisateur dans la table visiteur
+    $user->visiteur->update([
+        'nomUtilisateur' => $request->nomUtilisateur,
+    ]);
+
+    // Redirection avec message de succès
+    return redirect()
+        ->route('home')
+        ->with('success', 'Profil mis à jour avec succès');
+}
+
+// Fonction pour modifier le mot de passe
+public function updatePassword(Request $request)
+{
+    // Validation des champs
+    $request->validate([
+        'current_password' => 'required|string',
+        'password' => 'required|string|min:4|confirmed',
+    ]);
+
+    // Vérifier si le mot de passe actuel est correct
+    if (!Hash::check($request->current_password, Auth::user()->password)) {
+        return back()->withErrors(['current_password' => 'Le mot de passe actuel est incorrect']);
+    }
+
+    // Mise à jour du mot de passe
+    Auth::user()->update([
+        'password' => Hash::make($request->password)
+    ]);
+
+    return redirect()
+        ->route('profile.edit')
+        ->with('success', 'Mot de passe modifié avec succès');
+}
+
+public function toggleAccountStatus($userId)
+{
+    // Ensure only admin can access this method
+    if (!Auth::user()->hasRole('admin')) {
+        return redirect()->back()->with('error', 'Unauthorized access');
+    }
+
+    $user = User::findOrFail($userId);
+    $newStatus = $user->account_status === 'active' ? 'inactive' : 'active';
+    
+    $user->update(['account_status' => $newStatus]);
+
+    return redirect()->back()->with('success', 'Account status updated');
+}
+
+
+
+
 }
 

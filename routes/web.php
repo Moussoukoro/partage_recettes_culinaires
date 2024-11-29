@@ -30,11 +30,15 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 use App\Http\Controllers\HomeController;
 
 Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
+Route::resource('recettes', RecetteController::class);
 // Routes pour les recettes
 Route::middleware(['auth'])->group(function () {
-    Route::resource('recettes', RecetteController::class);
     Route::get('/mes-recettes', [RecetteController::class, 'mesRecettes'])->name('mes-recettes');
     Route::post('/commentaires', [CommentaireController::class, 'store'])->name('commentaires.store');
+    Route::get('/profile/edit', [AuthController::class, 'editProfileForm'])->name('profile.edit');
+    Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/password', [AuthController::class, 'updatePassword'])->name('profile.password');
+    Route::get('/mes-favoris', [RecetteController::class, 'mesFavoris'])->name('mes-favoris')->middleware('auth');
    
 });
 Route::middleware(['web', 'auth'])->group(function () {
@@ -42,6 +46,8 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('recettes.aimer');
     Route::post('/recettes/{recette}/favori', [RecetteController::class, 'favori'])
         ->name('recettes.favori');
+        Route::get('/recettes/category/{category}', [RecetteController::class, 'byCategory'])
+     ->name('recettes.category');
 });
 
 

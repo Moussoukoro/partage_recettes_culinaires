@@ -48,7 +48,7 @@
       </div>
     </div>
     <div class="btn-box">
-      <a href="toutes-les-recettes">Voir toutes les recettes</a>
+      <a href="{{route('recettes.index')}}">Voir toutes les recettes</a>
     </div>
   </div>
 </section>

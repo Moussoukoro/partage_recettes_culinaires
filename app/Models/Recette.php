@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;  
 
 class Recette extends Model
 {
-    use HasFactory;
+    use HasFactory , SoftDeletes;
 
     protected $fillable = [
         'titre',
@@ -20,7 +20,9 @@ class Recette extends Model
         'dateCreation',
         'heureCreation',
         'visiteur_id',
-        'tempsPreparation'
+        'tempsPreparation',
+         'deleted_by'
+
     ];
 
     protected $casts = [

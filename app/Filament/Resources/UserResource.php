@@ -84,6 +84,14 @@ class UserResource extends Resource
                     ->label('Lieu de naissance')
                     ->nullable()
                     ->maxLength(255),
+                    Select::make('account_status')
+                    ->label('Statut du compte')
+                    ->options([
+                        'active' => 'Actif',
+                        'inactive' => 'Inactif',
+                    ])
+                    ->default('active')
+                    ->required(),
                 TextInput::make('password')
                     ->label('Mot de passe')
                     ->password()
@@ -117,6 +125,14 @@ class UserResource extends Resource
                         'visiteur' => 'warning',
                         default => 'gray',
                     }),
+                    Tables\Columns\TextColumn::make('account_status')
+                    ->label('Statut')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'danger',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Téléphone'),
                     Tables\Columns\ImageColumn::make('photo')
@@ -135,13 +151,53 @@ class UserResource extends Resource
             ->filters([])
             ->actions([
                 EditAction::make(),
-            ])
+                Tables\Actions\Action::make('toggleStatus')
+                ->label(fn ($record) => $record->account_status === 'active' ? 'Désactiver' : 'Activer')
+                ->color(fn ($record) => $record->account_status === 'active' ? 'danger' : 'success')
+                ->icon(fn ($record) => $record->account_status === 'active' ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open')
+                ->action(function (User $record) {
+                    $newStatus = $record->account_status === 'active' ? 'inactive' : 'active';
+                    
+                    // Add debugging
+                    \Log::info('Attempting to update user status', [
+                        'user_id' => $record->id,
+                        'current_status' => $record->account_status,
+                        'new_status' => $newStatus
+                    ]);
+                
+                    $updated = $record->update(['account_status' => $newStatus]);
+                    
+                    \Filament\Notifications\Notification::make()
+                        ->success()
+                        ->title('Statut du compte modifié')
+                        ->body($newStatus === 'active' ? 'Compte activé' : 'Compte désactivé')
+                        ->send();
+                })
+                ->requiresConfirmation()
+                ->visible(fn () => auth()->user()->role === 'admin'),
+        ])
+          
             ->bulkActions([
-                BulkActionGroup::make([
+                    BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
             ]);
     }
+            public static function getTableActions(): array
+        {
+            return [
+                Tables\Actions\Action::make('toggleStatus')
+                    ->label(fn ($record) => $record->account_status === 'active' ? 'Désactiver' : 'Activer')
+                    ->color(fn ($record) => $record->account_status === 'active' ? 'danger' : 'success')
+                    ->icon(fn ($record) => $record->account_status === 'active' ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open')
+                    ->action(function (User $record) {
+                        $record->update([
+                            'account_status' => $record->account_status === 'active' ? 'inactive' : 'active'
+                        ]);
+                    })
+                    ->visible(fn () => auth()->user()->role === 'admin'), 
+            ];
+        }
 
     public static function getRelations(): array
     {

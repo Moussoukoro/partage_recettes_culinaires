@@ -15,7 +15,7 @@ class Visiteur extends Model
  
 
    // Relation avec l'utilisateur
-   public function user(): BelongsTo
+   public function user()
    {
        return $this->belongsTo(User::class);
    }
@@ -35,7 +35,7 @@ class Visiteur extends Model
    }
 
    // Recettes mises en favori
-   public function recettesFavories(): BelongsToMany
+   public function recettesFavories()
    {
        return $this->belongsToMany(Recette::class, 'favories')
                     ->withPivot('created_at')  // Si vous voulez accéder à la date de création

@@ -27,11 +27,11 @@
         </div>
 
         <div class="btn-box mb-4">
-          <a href="" class="btn btn-secondary">Modifier mon profil</a>
-          <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn-danger">Se déconnecter</button>
-          </form>
+          <a href="{{route('profile.edit')}}" class="btn btn-secondary">Modifier mon profil</a>
+          <a href="{{route('mes-favoris')}}" class="btn btn-primary">
+           <i class="fas fa-heart"></i> Mes Recettes Favorites
+        </a>
+      
         </div>
 
         <!-- Section Mes Recettes -->
@@ -42,7 +42,7 @@
               Ajouter recette
             </button>
           </div>
-
+         
           <!-- Liste des recettes -->
           <div class="row">
          @forelse(Auth::user()->recettes as $recette)
@@ -71,11 +71,16 @@
                 <p class="text-center">Vous n'avez pas encore ajouté de recettes.</p>
               </div>
             @endforelse
+
           </div>
         </div>
       </div>
     </div>
   </div>
+  <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-danger">Se déconnecter</button>
+          </form>
 
   <!-- Modal Ajout de Recette -->
   <div class="modal fade" id="addRecipeModal" tabindex="-1" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
@@ -174,6 +179,7 @@
     </div>
   </div>
 </section>
+
 @endsection
 
 @section('scripts')

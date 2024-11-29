@@ -21,6 +21,48 @@ class RecetteController extends Controller
             ->paginate(12);
         return view('recettes.index', compact('recettes'));
     }
+    public function recettes()
+    { 
+        // Définir les catégories principales
+        $categories = ['Déjeuner', 'Plats', 'Desserts'];
+        
+        // Récupérer les recettes avec leurs relations
+        $recettes = Recette::with([
+            'categories', 
+            'visiteur', 
+            'aimes', 
+            'favories', 
+            'commentaires'
+        ])->latest()->get();
+
+        // Grouper les recettes par catégorie
+        $recettesParCategorie = collect($categories)->mapWithKeys(function($categorie) use ($recettes) {
+            return [
+                $categorie => $recettes->filter(function($recette) use ($categorie) {
+                    return $recette->categories->contains('nom', $categorie);
+                })->take(3)
+            ];
+        });
+
+        // Retourner la vue avec toutes les variables nécessaires
+        return view('layouts.recette', [
+            'categories' => $categories,
+            'recettesParCategorie' => $recettesParCategorie
+        ]);
+    }
+
+    // Méthode pour afficher les recettes par catégorie
+    public function recettesByCategory($category)
+    {
+        $recettes = Recette::whereHas('categories', function($query) use ($category) {
+            $query->where('nom', $category);
+        })->with(['visiteur', 'aimes', 'favories', 'commentaires'])->latest()->get();
+
+        return view('recettes.category', [
+            'category' => $category,
+            'recettes' => $recettes
+        ]);
+    }
 
     /**
      * Afficher mes recettes
@@ -208,27 +250,47 @@ class RecetteController extends Controller
         return response()->json(['error' => 'Une erreur est survenue'], 500);
     }
 }
-    public function favori(Request $request, Recette $recette)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Non autorisé'], 401);
-        }
-
-        $visiteur = Auth::user()->visiteur;
-        
-        if ($recette->favories->contains($visiteur->id)) {
-            $recette->favories()->detach($visiteur->id);
-            $favorited = false;
-        } else {
-            $recette->favories()->attach($visiteur->id);
-            $favorited = true;
-        }
-
-        return response()->json([
-            'favorited' => $favorited,
-            'count' => $recette->favories()->count()
-        ]);
+public function favori(Request $request, Recette $recette)
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Non autorisé'], 401);
     }
+
+    $visiteur = Auth::user()->visiteur;
+    
+    // Utiliser la relation correcte recettesFavories()
+    if ($visiteur->recettesFavories->contains($recette->id)) {
+        $visiteur->recettesFavories()->detach($recette->id);
+        $favorited = false;
+    } else {
+        $visiteur->recettesFavories()->attach($recette->id);
+        $favorited = true;
+    }
+
+    return response()->json([
+        'favorited' => $favorited,
+        'count' => $recette->favories()->count()
+    ]);
+}
+    public function byCategory($category)
+{
+    $recettes = Recette::whereHas('categories', function($query) use ($category) {
+        $query->where('nom', ucfirst($category));
+    })->paginate(12);
+    
+    return view('recettes.category', compact('recettes', 'category'));
+}
+// Dans RecetteController.php
+public function mesFavoris()
+{
+    // Utiliser la relation correcte recettesFavories() au lieu de favories()
+    $recettesFavorites = Auth::user()->visiteur->recettesFavories()
+        ->with(['categories', 'visiteur'])
+        ->latest()
+        ->paginate(12);
+        
+    return view('recettes.mes-favoris', compact('recettesFavorites'));
+}
 
  
 
